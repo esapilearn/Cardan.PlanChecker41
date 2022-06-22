@@ -42,14 +42,24 @@ namespace ESAPX_StarterUI.ViewModels
                 }
             });
 
-            CreateConstraints();
+            var ptvs = VMS.GetValue(sc => sc.PlanSetup.StructureSet
+            .Structures
+            .Where(s => s.DicomType == "PTV")
+            .Select(s => s.Id)
+            .ToList());
+
+            CreateConstraints(ptvs);
         }
 
-        private void CreateConstraints()
+        private void CreateConstraints(IEnumerable<string> ptvs)
         {
+            foreach (var ptv in ptvs)
+            {
+                new PlanConstraint(ConstraintBuilder.Build(ptv, "Max[%] <= 110"));
+            }
             Constraints.AddRange(new PlanConstraint[]
             {
-                new PlanConstraint(ConstraintBuilder.Build("PTV", "Max[%] <= 110")),
+                new PlanConstraint(ConstraintBuilder.Build(@"PTV45", "Max[%] <= 110")),
                 new PlanConstraint(ConstraintBuilder.Build("Rectum", "V75Gy[%] <= 15")),
                 new PlanConstraint(ConstraintBuilder.Build("Rectum", "V65Gy[%] <= 35")),
                 new PlanConstraint(ConstraintBuilder.Build("Bladder", "V80Gy[%] <= 15")),
